@@ -20,6 +20,27 @@ namespace CSharp2SqlConsole {
             var user = Users.GetByPk(2);
             Debug.WriteLine(user);
             var usernf = Users.GetByPk(222);
+            var success = Users.Delete(3);
+            var user3 = Users.GetByPk(3);
+            Debug.WriteLine(user3);
+
+            var newuser = new Users();
+            newuser.Username = "ABC04";
+            newuser.Password = "XYZ";
+            newuser.Firstname = "Normal";
+            newuser.Lastname = "newuser";
+            //newuser.Phone = "5135551212";
+            //newuser.Email = "info@maxtrain.com";
+            newuser.IsAdmin = false;
+            newuser.IsReviewer = true;
+            success = Users.Insert(newuser);
+
+            var userabc = Users.GetByPk(5);
+            userabc.Username = "ABC00";
+            userabc.Firstname = "A";
+            userabc.Lastname = "BC";
+            success = Users.Update(userabc);
+
             conn.Close();
         }
         static void Main(string[] args) {

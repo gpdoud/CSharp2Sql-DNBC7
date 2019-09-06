@@ -5,7 +5,53 @@ using System.Diagnostics;
 namespace CSharp2SqlConsole {
     class Program {
 
-        void Run() {
+        void RunProductsTest() {
+            var conn = new Connection(@"localhost\sqlexpress", "PrsDb7");
+            conn.Open();
+            Products.Connection = conn;
+
+            var echo = Products.GetByPk(1);
+            Console.WriteLine($"Product {echo.Name} from Vendor {echo.Vendor.Name} is priced at {echo.Price}");
+
+            var products = Products.GetAll();
+            foreach(var p in products) {
+                //Console.WriteLine($"Product {p.Name} from Vendor {p.Vendor.Name} is priced at {p.Price}");
+            }
+
+            conn.Close();
+        }
+        void RunVendorsTest() {
+            var conn = new Connection(@"localhost\sqlexpress", "PrsDb7");
+            conn.Open();
+            Vendors.Connection = conn;
+
+            // Insert
+            var vendor = new Vendors {
+                Code = "TARG", Name = "Target",
+                Address = "123 Any St.", City = "Minneapolis", State = "MN", Zip = "12345",
+                Phone = null, Email = null
+            };
+            var success = Vendors.Insert(vendor);
+            Console.WriteLine($"Insert worked: {success}");
+
+            Console.WriteLine("======================================");
+
+            var amazon = Vendors.GetByPk(3);
+            Console.WriteLine($"Vendor 3 found: {amazon}");
+            var notfound = Vendors.GetByPk(333);
+            Console.WriteLine(notfound?.ToString() ?? "Vendor 333 not found");
+
+            Console.WriteLine("======================================");
+
+            var vendors = Vendors.GetAll();
+            foreach(var v in vendors) {
+                Console.WriteLine(v.Name);
+            }
+
+            conn.Close();
+        }
+
+        void RunUsersTest() {
             var conn = new Connection(@"localhost\sqlexpress", "PrsDb7");
             conn.Open();
             Users.Connection = conn;
@@ -25,7 +71,7 @@ namespace CSharp2SqlConsole {
             Debug.WriteLine(user3);
 
             var newuser = new Users();
-            newuser.Username = "ABC04";
+            newuser.Username = "ABC08";
             newuser.Password = "XYZ";
             newuser.Firstname = "Normal";
             newuser.Lastname = "newuser";
@@ -45,7 +91,9 @@ namespace CSharp2SqlConsole {
         }
         static void Main(string[] args) {
             var pgm = new Program();
-            pgm.Run();
+            //pgm.RunUsersTest();
+            //pgm.RunVendorsTest();
+            pgm.RunProductsTest();
         }
     }
 }

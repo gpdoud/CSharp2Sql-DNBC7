@@ -20,7 +20,14 @@ namespace CSharp2SqlLibrary {
                 " IsAdmin = @IsAdmin, " +
                 " IsReviewer = @IsReviewer " +
                 " Where Id = @Id";
-            var sqlcmd = new SqlCommand(sql, Connection._Connection);
+            var sqlcmd = new SqlCommand(sql, Connection.sqlConnection);
+            SetParameterValues(user, sqlcmd);
+            sqlcmd.Parameters.AddWithValue("@Id", user.Id);
+            var rowsAffected = sqlcmd.ExecuteNonQuery();
+            return rowsAffected == 1;
+        }
+
+        private static void SetParameterValues(Users user, SqlCommand sqlcmd) {
             sqlcmd.Parameters.AddWithValue("@Username", user.Username);
             sqlcmd.Parameters.AddWithValue("@Password", user.Password);
             sqlcmd.Parameters.AddWithValue("@Firstname", user.Firstname);
@@ -29,9 +36,6 @@ namespace CSharp2SqlLibrary {
             sqlcmd.Parameters.AddWithValue("@Email", (object)user.Email ?? DBNull.Value);
             sqlcmd.Parameters.AddWithValue("@IsAdmin", user.IsAdmin);
             sqlcmd.Parameters.AddWithValue("@IsReviewer", user.IsReviewer);
-            sqlcmd.Parameters.AddWithValue("@Id", user.Id);
-            var rowsAffected = sqlcmd.ExecuteNonQuery();
-            return rowsAffected == 1;
         }
 
         public static bool Insert(Users user) {
@@ -39,21 +43,16 @@ namespace CSharp2SqlLibrary {
                 "(Username, Password, FirstName, Lastname, Phone, Email, IsAdmin, IsReviewer) " +
                 " VALUES " +
                 "(@Username, @Password, @Firstname, @Lastname, @Phone, @Email, @IsAdmin, @IsReviewer)";
-            var sqlcmd = new SqlCommand(sql, Connection._Connection);
-            sqlcmd.Parameters.AddWithValue("@Username", user.Username);
-            sqlcmd.Parameters.AddWithValue("@Password", user.Password);
-            sqlcmd.Parameters.AddWithValue("@Firstname", user.Firstname);
-            sqlcmd.Parameters.AddWithValue("@Lastname", user.Lastname);
-            sqlcmd.Parameters.AddWithValue("@Phone", (object)user.Phone ?? DBNull.Value);
-            sqlcmd.Parameters.AddWithValue("@Email", (object)user.Email ?? DBNull.Value);
-            sqlcmd.Parameters.AddWithValue("@IsAdmin", user.IsAdmin);
-            sqlcmd.Parameters.AddWithValue("@IsReviewer", user.IsReviewer);
+            var sqlcmd = new SqlCommand(sql, Connection.sqlConnection);
+            SetParameterValues(user, sqlcmd);
             var rowsAffected = sqlcmd.ExecuteNonQuery();
             return rowsAffected == 1;
         }
+        const string SqlDelete = "DELETE from Users Where Id = @Id;";
+
         public static bool Delete(int id) {
-            var sql = "DELETE from Users Where Id = @Id;";
-            var sqlcmd = new SqlCommand(sql, Connection._Connection);
+            var sql = SqlDelete;
+            var sqlcmd = new SqlCommand(sql, Connection.sqlConnection);
             sqlcmd.Parameters.AddWithValue("@Id", id);
             var rowsAffected = sqlcmd.ExecuteNonQuery();
             return rowsAffected == 1;
@@ -61,7 +60,7 @@ namespace CSharp2SqlLibrary {
 
         public static Users Login(string username, string password) {
             var sql = "SELECT * from Users Where Username = @Username AND Password = @Password";
-            var sqlcmd = new SqlCommand(sql, Connection._Connection);
+            var sqlcmd = new SqlCommand(sql, Connection.sqlConnection);
             sqlcmd.Parameters.AddWithValue("@Username", username);
             sqlcmd.Parameters.AddWithValue("@Password", password);
             var reader = sqlcmd.ExecuteReader();
@@ -79,7 +78,7 @@ namespace CSharp2SqlLibrary {
 
         public static Users GetByPk(int id) {
             var sql = "SELECT * from Users Where Id = @Id";
-            var sqlcmd = new SqlCommand(sql, Connection._Connection);
+            var sqlcmd = new SqlCommand(sql, Connection.sqlConnection);
             sqlcmd.Parameters.AddWithValue("@Id", id);
             var reader = sqlcmd.ExecuteReader();
             if(!reader.HasRows) {
@@ -96,7 +95,7 @@ namespace CSharp2SqlLibrary {
 
         public static List<Users> GetAll() {
             var sql = "SELECT * from Users;";
-            var sqlcmd = new SqlCommand(sql, Connection._Connection);
+            var sqlcmd = new SqlCommand(sql, Connection.sqlConnection);
             var reader = sqlcmd.ExecuteReader();
             var users = new List<Users>();
             while(reader.Read()) {

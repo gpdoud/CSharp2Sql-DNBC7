@@ -9,13 +9,36 @@ namespace CSharp2SqlConsole {
             var conn = new Connection(@"localhost\sqlexpress", "PrsDb7");
             conn.Open();
             Products.Connection = conn;
+            Vendors.Connection = conn;
 
-            var echo = Products.GetByPk(1);
-            Console.WriteLine($"Product {echo.Name} from Vendor {echo.Vendor.Name} is priced at {echo.Price}");
+            var product = new Products() {
+                PartNbr = "XYZ001", Name = "XYZ Part", Price = 10, Unit = "Each", PhotoPath = null,
+                VendorId = Vendors.GetByCode("AMAZ").Id
+            };
+            try {
+                Console.WriteLine("Product list for Vendor Amazon:");
+                var productList = Vendors.GetProducts("AMAZ");
+                foreach(var prod in productList) {
+                    Console.WriteLine(prod);
+                }
+                // insert
+                //var success = Products.Insert(product);
+                // update product.id = 3
+                //var p = Products.GetByPartNbr("XYZ001");
+                //p.Name = "Greg New Part XYZ";
+                //p.VendorId = Vendors.GetByCode("XXX").Id;
+                //success = Products.Update(p);
+
+                //p = Products.GetByPartNbr("XYZ001");
+                //Console.WriteLine(p);
+                //success = Products.Delete(p.Id);
+            } catch(Exception ex) {
+                Console.WriteLine($"Exception occurred: {ex.Message}");
+            }
 
             var products = Products.GetAll();
             foreach(var p in products) {
-                //Console.WriteLine($"Product {p.Name} from Vendor {p.Vendor.Name} is priced at {p.Price}");
+                Console.WriteLine($"Product {p.Name} from Vendor {p.Vendor.Name} is priced at {p.Price}");
             }
 
             conn.Close();

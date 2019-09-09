@@ -12,6 +12,7 @@ namespace CSharp2SqlLibrary {
         #region SQL Statements
         private const string SqlGetAll = "SELECT * From Vendors ";
         private const string SqlGetByPk = SqlGetAll + " Where Id = @Id";
+        private const string SqlGetByCode = SqlGetAll + " Where Code = @Code ";
         private const string SqlDelete = "DELETE From Vendors Where Id = @Id";
         private const string SqlUpdate = "UPDATE Vendors Set " +
             " Code = @Code, Name = @Name, Address = @Address, City = @City, State = @State, Zip = @Zip, " +
@@ -21,7 +22,38 @@ namespace CSharp2SqlLibrary {
             " (Code, Name, Address, City, State, Zip, Phone, Email) " +
             " Output Inserted.Id " +
             " VALUES (@Code, @Name, @Address, @City, @State, @Zip, @Phone, @Email) ";
+        private const string SqlGetProducts = "SELECT * from Products Where VendorId = "
+            + " (SELECT id from Vendors Where Code = @Code)";
         #endregion
+
+        public static List<Products> GetProducts(string code) {
+            var sqlcmd = new SqlCommand(SqlGetProducts, Connection.sqlConnection);
+            sqlcmd.Parameters.AddWithValue("@Code", code);
+            var reader = sqlcmd.ExecuteReader();
+            var products = new List<Products>();
+            while(reader.Read()) {
+                var product = new Products();
+                products.Add(product);
+                Products.LoadProductFromSql(product, reader);
+            }
+            reader.Close();
+            return products;
+        }
+        public static Vendors GetByCode(string code) {
+            var sqlcmd = new SqlCommand(SqlGetByCode, Connection.sqlConnection);
+            sqlcmd.Parameters.AddWithValue("@Code", code);
+            var reader = sqlcmd.ExecuteReader();
+            if(!reader.HasRows) {
+                reader.Close();
+                return null;
+            }
+            reader.Read();
+            var vendor = new Vendors();
+            LoadVendorFromSql(vendor, reader);
+
+            reader.Close();
+            return vendor;
+        }
 
         public static bool Update(Vendors vendor) {
             var sqlcmd = new SqlCommand(SqlUpdate, Connection.sqlConnection);
